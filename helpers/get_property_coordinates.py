@@ -23,6 +23,8 @@ def get_property_coordinates(cadastre_code: str) -> Union[list, None]:
         'Accept-Language': 'en-US,en;q=0.9,ru;q=0.8'
     }
 
+    s.headers = headers
+
     params = {
         'f': 'json',
         'where': f"LOWER(CODE)={cadastre_code}",
@@ -33,20 +35,21 @@ def get_property_coordinates(cadastre_code: str) -> Union[list, None]:
     url2 = 'https://www.kadastrs.lv/di/proxy.ashx?AGS105/arcgis/rest/services/KK/CadasterIndex/MapServer/3/query?'
 
     r1 = s.get(url1)
-    print(s.cookies)
-    r2 = s.get(url2, headers=headers, params=params)
+    if r1.status_code == 200:
+        print(s.cookies)
+        r2 = s.get(url2, headers=headers, params=params)
 
-    if r2.status_code == 200:
-        try:
-            response_body_obj = json.loads(r2.content.decode(encoding='UTF-8'))
-            received_cadastre_code = response_body_obj.get('features')[0].get('attributes').get('CODE')
-            if received_cadastre_code == cadastre_code:
-                return response_body_obj.get('features')[0].get('geometry').get('rings')
-            else:
-                return []
-        except json.decoder.JSONDecodeError:
-            raise HTTPException(status_code=503, detail="Enable to parse JSON response from kadastrs.lv")
-        except IndexError or KeyError:
-            raise HTTPException(status_code=503, detail="Unexpected JSON response from kadastrs.lv")
-    else:
-        raise HTTPException(status_code=503, detail=f"Status code: {r2.status_code} from kadastrs.lv")
+        if r2.status_code == 200:
+            try:
+                response_body_obj = json.loads(r2.content.decode(encoding='UTF-8'))
+                received_cadastre_code = response_body_obj.get('features')[0].get('attributes').get('CODE')
+                if received_cadastre_code == cadastre_code:
+                    return response_body_obj.get('features')[0].get('geometry').get('rings')
+                else:
+                    return []
+            except json.decoder.JSONDecodeError:
+                raise HTTPException(status_code=503, detail="Enable to parse JSON response from kadastrs.lv")
+            except IndexError or KeyError:
+                raise HTTPException(status_code=503, detail="Unexpected JSON response from kadastrs.lv")
+        else:
+            raise HTTPException(status_code=503, detail=f"Status code: {r2.status_code} from kadastrs.lv")

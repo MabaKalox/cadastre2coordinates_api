@@ -1,17 +1,16 @@
-# from helpers.get_property_coordinates import get_property_coordinates
-import pickle
-import json
+from typing import Optional
+from fastapi import FastAPI
+import uvicorn
+
+from helpers.get_property_coordinates import get_property_coordinates
+
+app = FastAPI()
 
 
-# cadastre_code = input("Cadastre number: ")
+@app.get("/get_property_coordinates")
+def url_get_property_coordinates(cadastre_code: str):
+    return get_property_coordinates(cadastre_code)
 
-with open('config', 'rb') as dump_file:
-    r2 = pickle.load(dump_file)
 
-# with open('config', 'wb') as dump_file:
-#     r2 = get_property_coordinates('0100001002001')
-#     pickle.dump(r2, dump_file)
-
-response_body_obj = json.loads(r2.content.decode(encoding='UTF-8'))
-
-print(r2.status_code == 200)
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

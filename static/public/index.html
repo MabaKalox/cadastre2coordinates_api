@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>Google Maps Multiple Markers</title>
+    <script src="http://maps.google.com/maps/api/js?sensor=false"
+            type="text/javascript"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/javascript">
+        let geodetic_property_rings
+
+        const loading_gif = document.createElement('img')
+        loading_gif.src = 'https://media.giphy.com/media/3o7bu3XilJ5BOiSGic/giphy.gif'
+        loading_gif.style.height = '1em'
+        loading_gif.style.display = 'none'
+
+        window.addEventListener('load', () => {
+
+            const draw_point = (map, coordinates_list) => {
+                for (const coordinates of coordinates_list) {
+                    const marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(coordinates[0], coordinates[1]),
+                        map: map
+                    });
+                }
+            }
+
+            const map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 10,
+                center: new google.maps.LatLng(56.945, 24.102),
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            });
+
+            const get_coordinates_list_button = document.getElementById('get_coordinates_list_button')
+            const put_points_button = document.getElementById('put_points_button')
+            const cadastre_code_field = document.getElementById('cadastre_code')
+            const output_field = document.getElementById('output_field')
+            get_coordinates_list_button.appendChild(loading_gif)
+            get_coordinates_list_button.addEventListener('click', () => {
+                loading_gif.style.display = 'inline'
+                axios.get('/get_property_coordinates', {
+                    params: {
+                        cadastre_code: cadastre_code_field.value
+                    }
+                }).then((response) => {
+                    geodetic_property_rings = response.data
+                    output_field.innerText = JSON.stringify(geodetic_property_rings)
+                    console.log(geodetic_property_rings)
+                }).catch((error) => {
+                    console.log(error)
+                }).then(() => {
+                    loading_gif.style.display = 'none'
+                })
+            })
+            put_points_button.addEventListener('click', () => {
+                for (const ring of geodetic_property_rings) {
+                    console.log(ring)
+                    draw_point(map, ring)
+                }
+            })
+        })
+    </script>
+</head>
+<body>
+<div id="map" style="width: 900px; height: 400px;"></div>
+<form>
+    <label for="cadastre_code">Cadastre code:</label><br>
+    <input type="text" id="cadastre_code" name="cadastre_code" value=""><br><br>
+</form>
+<button type="button" style="padding: 5px" id="get_coordinates_list_button">Get Coordinates List</button>
+<button type="button" style="padding: 5px" id="put_points_button">Put Points</button>
+
+<p id="output_field"></p>
+</body>
+</html>

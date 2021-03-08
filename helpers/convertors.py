@@ -1,7 +1,7 @@
 import math
 
 
-def LKS92TM_to_Geodetic(x_m, y_m):
+def lkm92tm_to_geodetic(x_m, y_m):
     # constants
     a = 6378137.0
     f = 1 / 298.257223563

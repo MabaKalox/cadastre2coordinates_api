@@ -8,6 +8,7 @@ requests = "*"
 fastapi = "*"
 uvicorn = "*"
 aiofiles = "*"
+aiohttp = "*"
 
 [dev-packages]
 

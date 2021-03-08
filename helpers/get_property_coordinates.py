@@ -1,5 +1,4 @@
 from fastapi import HTTPException
-import urllib
 from urllib.parse import urlencode
 from typing import Union, List, Dict, Optional
 import json

@@ -19,8 +19,8 @@ def frontend():
 
 
 @app.get("/get_property_coordinates")
-def url_get_property_coordinates(cadastre_code: str) -> List[List]:
-    lkm92tm_property_rings = get_property_coordinates(cadastre_code)
+async def url_get_property_coordinates(cadastre_code: str) -> List[List]:
+    lkm92tm_property_rings = await get_property_coordinates(cadastre_code)
     geodetic_property_rings = []
     for lkm92tm_property_ring in lkm92tm_property_rings:
         geodetic_ring = []
